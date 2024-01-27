@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledgebase</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts/chat.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/kb_style.css') }}">
+</head>
+
+<body>
+    <div id="sidePanel">
+        
+
+        <h3>Step 1: Create a knowledgebase</h3>
+        <button onclick="showForm()">Create new knowledgebase</button>
+        <div id="formContainer" style="display: none;">
+            <!-- Form for adding new knowledgebase record (initially hidden) -->
+            <form method="post" action="{{ url_for('update_knowledgebase') }}">
+                <label for="key">Name:</label>
+                <input type="text" id="key" name="key" required>
+                
+                <label for="value">Description:</label>
+                <input type="text" id="value" name="value" required>
+        
+                <button type="submit">Create Knowledgebase</button>
+            </form>
+        </div>
+
+        <h3>Step 2: Choose file to upload</h3>
+        <form method="post" enctype="multipart/form-data" action="/upload">
+            <input type="file" name="file">
+            <input type="submit" value="Upload">
+        </form>
+
+        <!-- Display existing knowledgebase content -->
+        {% if knowledgebase_data %}
+            <h3>Step 3: Select a knowledgebase and process file</h3>
+            <form method="post" action="{{ url_for('process_pdf') }}" enctype="multipart/form-data">
+                <ul>
+                    {% for key, value in knowledgebase_data.items() %}
+                        <li>
+                            <label>
+                                <input type="radio" name="selected_record" value="{{ key }}">
+                                <strong>{{ key }}:</strong> {{ value }}
+                            </label>
+                        </li>
+                    {% endfor %}
+                </ul>
+                
+                <button type="submit">Process</button>
+            </form>
+        {% else %}
+            <p>No knowledgebase records found.</p>
+        {% endif %}
+
+        <!-- Display selected document text keys -->
+        {% if knowledgebase_data %}
+            <h3>Step 4: Pick a knowledgebase to start chat</h3>
+            <form id="chatStartForm">
+                <ul>
+                    {% for key in knowledgebase_data.keys() %}
+                        <li>
+                            <label>
+                                <input type="radio" name="selected_document_text_key" value="{{ key }}">
+                                {{ key }}
+                            </label>
+                        </li>
+                    {% endfor %}
+                </ul>
+                
+                <button type="button" onclick="startChat()">Start Chat</button>
+            </form>
+        {% endif %}
+    
+    </div>
+
+    <!-- knowledgebase.html -->
+
+    <div id="mainContent">
+        <h1>Welcome to the Knowledgebase, {{ user.username }}!</h1>
+        <h2>You are chating with {{key}} knowledgebase</h2>
+
+        <div id="chatContent"></div>
+
+        <div id="chatFormContainer">
+            <!-- Chat form -->
+            <form id="chatForm" style="display: none;">
+                <label for="user_query">User Inquiry:</label>
+                <input type="text" id="user_query" name="user_query" required>
+                <button type="button" onclick="submitInquiry()">Submit Inquiry</button>
+            </form>
+        </div>
+    </div> 
+    
+    
+</body>
+</html>
