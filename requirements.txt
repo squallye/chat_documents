@@ -15,4 +15,5 @@ PyPDF2
 python-dotenv
 sentence-transformers
 tiktoken
+pymysql
 
